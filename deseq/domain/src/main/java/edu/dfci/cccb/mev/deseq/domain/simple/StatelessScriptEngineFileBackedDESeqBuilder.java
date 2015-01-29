@@ -110,6 +110,9 @@ public class StatelessScriptEngineFileBackedDESeqBuilder extends AbstractDESeqBu
           printScript.println ("CONDITION_B=\"" + experiment().name() + "\"");
           printScript.println ("OUTPUT_FILE=\"" + fullOutputFile.getAbsolutePath () + "\"");
           printScript.println ("NORMALIZED_COUNTS_FILE=\"" + normCountFile.getAbsolutePath () + "\"");
+          String normFlag = isNormalized()?"TRUE":"FALSE";
+          printScript.println ("IS_ALREADY_NROMALIZED=" + normFlag );
+
           
           try (InputStream deseqScript = getClass ().getResourceAsStream ("/deseq_basic.R")) {
             for (int c; (c = deseqScript.read ()) >= 0; printScript.write (c));

@@ -52,7 +52,7 @@ import edu.dfci.cccb.mev.deseq.domain.simple.StatelessScriptEngineFileBackedDESe
 public class CliRDESeqTest {
 
   @Test
-  public void test () throws Exception {
+  public void test_raw_counts () throws Exception {
     try (InputStream inp = getClass ().getResourceAsStream ("/test_data.tsv");
          ByteArrayOutputStream copy = new ByteArrayOutputStream ()) {
       IOUtils.copy (inp, copy);
@@ -74,6 +74,37 @@ public class CliRDESeqTest {
                                                                        .dataset (dataset)
                                                                        .control (control)
                                                                        .experiment (experiment)
+                                                                       .isNormalized(false)
+                                                                       .build ();
+      for (Entry e : result.full ())
+        log.debug ("Full DESeq entry: " + e);
+    }
+  }
+  
+  @Test
+  public void test_normalized_counts () throws Exception {
+    try (InputStream inp = getClass ().getResourceAsStream ("/test_normalized_data.tsv");
+         ByteArrayOutputStream copy = new ByteArrayOutputStream ()) {
+      IOUtils.copy (inp, copy);
+      Dataset dataset = new SimpleDatasetBuilder ().setParserFactories (asList (new SuperCsvParserFactory ()))
+                                                   .setValueStoreBuilder (new MapBackedValueStoreBuilder ())
+                                                   .build (new MockTsvInput ("mock",
+                                                                             copy.toString ()));
+      Selection experiment = new SimpleSelection ("experiment", new Properties (), asList ("SA1_06_25_14",
+                                                                                           "SA2_06_25_14",
+                                                                                           "SA3_06_25_14",
+                                                                                           "SA4_006_25_14","SA5_06_25_14"
+));
+      Selection control = new SimpleSelection ("control", new Properties (), asList ("SA10-06-25-14", "SA11_06_25_14", "SA12_06_25_14"));
+      dataset.dimension (COLUMN).selections ().put (experiment);
+      dataset.dimension (COLUMN).selections ().put (control);
+      DESeq result =
+                     new StatelessScriptEngineFileBackedDESeqBuilder ().r (new ScriptEngineManager ().getEngineByName ("CliR"))
+                                                                       .composerFactory (new SuperCsvComposerFactory ())
+                                                                       .dataset (dataset)
+                                                                       .control (control)
+                                                                       .experiment (experiment)
+                                                                       .isNormalized(true)
                                                                        .build ();
       for (Entry e : result.full ())
         log.debug ("Full DESeq entry: " + e);

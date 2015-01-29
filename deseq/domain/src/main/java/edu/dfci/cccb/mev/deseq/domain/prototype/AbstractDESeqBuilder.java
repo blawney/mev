@@ -39,7 +39,8 @@ public abstract class AbstractDESeqBuilder extends AbstractAnalysisBuilder<DESeq
   private @Getter @Setter Selection experiment;
   private @Getter @Setter @Resource (name = "R") ScriptEngine r;
   private @Getter @Setter @Inject ComposerFactory composerFactory;
-
+  private @Getter @Setter boolean isNormalized;  //whether the input count matrix is already normalized.
+  
   /**
    */
   public AbstractDESeqBuilder () {

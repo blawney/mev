@@ -26,4 +26,6 @@ public interface DESeqBuilder extends AnalysisBuilder<DESeqBuilder, DESeq> {
   DESeqBuilder control (Selection selection);
 
   DESeqBuilder experiment (Selection selection);
+  
+  DESeqBuilder isNormalized (boolean isNormalized);
 }

@@ -10,6 +10,7 @@ if(!require("DESeq", character.only=T)) stop("Please install the DESeq package f
 # CONDITION_A, CONDITION_B: strings indicating which biological states we are contrasting.  These should match the designated states in the second column of the SAMPLE_FILE.  CONDITION_A is considered to be the 'control' sample
 # OUTPUT_FILE: full path to the output file
 # NORMALIZED_COUNTS_FILE: path to the file with the normalized read counts
+# IS_ALREADY_NORMALIZED: boolean about whether the input count matrix has already been normalized in some manner.
 
 # read in the count matrix:
 count_data <- read.table(COUNT_MTX_FILE, header=T, sep="\t")
@@ -46,11 +47,20 @@ count_data <- count_data[, sample_ids]
 #run the actual DESeq steps:
 cds=newCountDataSet(count_data, conditions)
 cds=estimateSizeFactors(cds)
+
+if (IS_ALREADY_NORMALIZED){
+        cds@phenoData@data$sizeFactor=c(rep(1,length(count_data)))
+}
+
 cds=estimateDispersions(cds)
 res=nbinomTest(cds, CONDITION_A, CONDITION_B)
 
 #write out the normalized counts:
-nc<-counts( cds, normalized=TRUE )
+if (IS_ALREADY_NORMALIZED){
+        nc<-counts( cds, normalized=FALSE )
+}else{
+        nc<-counts( cds, normalized=TRUE )
+}
 write.table(as.data.frame(nc), file=NORMALIZED_COUNTS_FILE, row.names=TRUE, col.names=F, quote=F, sep="\t")
 
 #write the differential expression results to a file:
